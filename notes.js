@@ -1,4 +1,5 @@
 const fs = require('fs')
+const chalk = require('chalk')
 
 const getNotes = function () {
     return 'Your notes....'
@@ -17,11 +18,20 @@ const loadNotes = function () {
 
 const addNote = function (title, body) {
     const notes = loadNotes()
-    notes.push({
-        title: title,
-        body: body
+    const duplicateNote = notes.find((note) => {
+        return note.title === title 
     })
-    saveNotes(notes)
+
+    if (!duplicateNote) {
+        notes.push({
+            title: title,
+            body: body
+        })
+        saveNotes(notes)
+        console.log('New note added!')
+    } else {
+        console.log('Duplicate note detected')
+    }
 }
 
 const saveNotes = function (notes) {
@@ -29,7 +39,46 @@ const saveNotes = function (notes) {
     fs.writeFileSync('notes.json', notesJSON)
 }
 
+const removeNote = (title) => {
+    const notes = loadNotes()
+
+    filteredNotes = notes.filter((note) => {
+        return note.title !== title 
+    })
+    saveNotes(filteredNotes)
+
+    if (filteredNotes.length < notes.length) {
+        console.log(chalk.black.bgGreen('Note removed successfully!'))
+    } else if (filteredNotes.length === notes.length) {
+        console.log(chalk.bgRed('No such note found!'))
+    }
+}
+
+const listNotes = () => {
+    const notes = loadNotes()
+    console.log(chalk.black.bgCyan('Your Notes:'))
+    notes.forEach((note) => {
+        console.log(note.title)
+    })
+}
+
+const readNote = (title) => {
+    notes = loadNotes()
+    foundNote = notes.find((note) => {
+        return note.title === title
+    })
+    if (!foundNote) {
+        console.log('Note not found')
+    } else {
+        console.log(chalk.black.bgWhite(foundNote.title))
+        console.log(foundNote.body)
+    }
+}
+
 module.exports = { 
     getNotes: getNotes,
-    addNote: addNote
+    addNote: addNote,
+    removeNote: removeNote,
+    listNotes: listNotes,
+    readNote: readNote
 } 
